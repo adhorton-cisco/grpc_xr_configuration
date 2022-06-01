@@ -13,12 +13,22 @@ from iosxr_grpc.cisco_grpc_client import CiscoGRPCClient
 def main():
     client = CiscoGRPCClient('172.26.228.246', 61211, 10, 'cisco', 'cisco123')
     # path = '{"Cisco-IOS-XR-ipv4-bgp-cfg:bgp": [null]}'
-    path = '{"openconfig-interfaces:interfaces": [null]}'
+    path = '''
+            {
+                "openconfig-interfaces:interfaces":
+                {
+                    "interface":
+                    [
+                        {"name": "FourHundredGigE0/0/0/23"}
+                    ]
+                }
+            }'''
     try:
         err, result = client.getconfig(path)
         if err:
             print(err)
-        print(json.dumps(json.loads(result), indent=4))
+        else:
+            print(json.dumps(json.loads(result), indent=4))
     except AbortionError:
         print(
             'Unable to connect to Sandbox, check your gRPC destination and configuration.'
