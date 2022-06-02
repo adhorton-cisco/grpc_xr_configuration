@@ -18,21 +18,23 @@ class TelemetryConfig:
             :type password: str
         """
 
-        self.client = CiscoGRPCClient(host, port, timeout, user, password)
+        self._client = CiscoGRPCClient(host, port, timeout, user, password)
+    
+    class Destination:
+        def __init__(self, ip, port, encoding, protocol):
+            self.ip = ip
+            self.port = port
+            self.encoding = encoding
+            self.protocol = protocol
 
-    def create_destination_group(self, name, ip, port, encoding, protocol):
+
+    def create_destination_group(self, name, destinations):
         """ Configures a new destination-group
 
             :param name: The name of the new destination-group
             :type name: int
-            :param ip: The ip address for the collector
-            :type ip: str
-            :param port: The port for the collector
-            :type port: int
-            :param encoding: The encoding to use for telemetry data
-            :type encoding: str
-            :param protocol: The protocol to use for transmitting telemetry data
-            :type protocol: str
+            :param destinations: A list of TelemetryConfig.Destination objects
+            :type destinations: list
             :return: Return the response object
             :rtype: str
         """
@@ -40,14 +42,19 @@ class TelemetryConfig:
         configuration = (
             'telemetry model-driven\n'
             ' destination-group ' + name + '\n'
-            '  address-family ipv4 ' + ip + ' port ' + str(port) +'\n'
-            '   encoding ' + encoding +'\n'
-            '   protocol ' + protocol + '\n'
-            '   !\n'
+        )
+        for destination in destinations:
+            configuration += (
+                '  address-family ipv4 ' + destination.ip + ' port ' + str(destination.port) +'\n'
+                '   encoding ' + destination.encoding +'\n'
+                '   protocol ' + destination.protocol + '\n'
+                '   !\n'
+            )
+        configuration += (
             '  !\n'
             '!\n'
         )
-        response = self.client.cliconfig(configuration)
+        response = self._client.cliconfig(configuration)
         return response
 
     def create_sensor_group(self, name, sensor_paths):
@@ -71,7 +78,7 @@ class TelemetryConfig:
             ' !\n'
             '!'
         )
-        response = self.client.cliconfig(configuration)
+        response = self._client.cliconfig(configuration)
         return response
     
     def create_subscription(self, name, sensor_group, interval, destination_group):
@@ -98,5 +105,15 @@ class TelemetryConfig:
             ' !\n'
             '!'
         )
-        response = self.client.cliconfig(configuration)
+        response = self._client.cliconfig(configuration)
         return response
+
+if __name__ == '__main__':
+    print('A module for configuring model-driven telemetry')
+
+    # SAMPLE CODE
+    # configurer = TelemetryConfig('1.1.1.1', 57744, 10, 'cisco', 'cisco123')
+    # collector1 = TelemetryConfig.Destination('2.2.2.2', 57500, 'self-describing-gpb', 'grpc')
+    # configurer.create_destination_group('DGroup', [collector1])
+    # configurer.create_sensor_group('SGroup', ['Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary'])
+    # configurer.create_subscription('Sub', 'SGroup', 30000, 'DGroup')
