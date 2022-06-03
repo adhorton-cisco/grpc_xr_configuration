@@ -21,7 +21,7 @@ class TelemetryConfig:
         self._client = CiscoGRPCClient(host, port, timeout, user, password)
     
     class Destination_Group:
-        def __init__(self, name, destinations=[]):
+        def __init__(self, name, destinations=None):
             """ Constructor Method
             
                 :param name: The name of the destination group
@@ -29,6 +29,9 @@ class TelemetryConfig:
                 :param destinations: A list of Destinations to add to the destination group
                 :type destinations: list of TelemetryConfig.Destination_Group.Destination objects, optional
             """
+
+            if destinations == None:
+                destinations = []
             self.destinations = destinations
             self.name = name
 
@@ -62,9 +65,12 @@ class TelemetryConfig:
                 :type encoding: str
                 :param protocol: The protocol for telemetry streaming
                 :type protocol: str
+                :return: The new Destination object
+                :rtype: TelemetryConfig.Destination_Group.Destination
             """
-
-            self.destinations.append(TelemetryConfig.Destination_Group.Destination(ip, port, encoding, protocol))
+            new_dest = TelemetryConfig.Destination_Group.Destination(ip, port, encoding, protocol)
+            self.destinations.append(new_dest)
+            return new_dest
         
         def add_destination_obj(self, destination):
             """ Add a destination to the group with a Destination object
@@ -74,11 +80,9 @@ class TelemetryConfig:
             """
 
             self.destinations.append(destination)
-
-
     
     class Sensor_Group:
-        def __init__(self, name, sensor_paths=[]):
+        def __init__(self, name, sensor_paths=None):
             """ Constructor Method
 
                 :param name: The name of the sensor group
@@ -86,6 +90,9 @@ class TelemetryConfig:
                 :param sensor_paths: A list of sensor paths to add to the group
                 :type sensor_paths: list of str, optional
             """
+
+            if sensor_paths == None:
+                sensor_paths = []
             self.name = name
             self.sensor_paths = sensor_paths
 
@@ -96,6 +103,17 @@ class TelemetryConfig:
                 :type path: str
             """
             self.sensor_paths.append(path)
+
+        def remove_sensor_path(self, path):
+            """ Removes a sensor path from the sensor group
+
+                :param path: The sensor path to remove
+                :type path: str
+            """
+            try:
+                self.sensor_paths.remove(path)
+            except ValueError:
+                print("Path not found in " + self.name)
 
     class Subscription:
         def __init__(self, name, sensor_group, destination_group, interval):
@@ -187,10 +205,14 @@ class TelemetryConfig:
         return response
 
     def get_config(self):
-        """FIXME"""
-        pass
+        """ Returns a string containing the current telemetry configuration
 
-    def clear_configuration(self, target=None):
+            :return: The current telemetry configuration
+            :rtype: str
+        """
+        return self._client.showcmdtextoutput('show running-config telemetry model-driven')[1]
+
+    def clear_config(self, target=None):
         """ Clears some or all telemetry configurations. If target is not specified, telemetry configuration is erased entirely
         
             :param target: The target configuration to remove
@@ -233,7 +255,8 @@ class TelemetryConfig:
 
 if __name__ == '__main__':
     ## Sample Configuration ##
-    config = TelemetryConfig('1.2.3.4', 57777, 10, 'cisco', 'cisco123')
+    config = TelemetryConfig('1.2.3.4', 57777, 10, 'user', 'password')
+
     dg = TelemetryConfig.Destination_Group('DGroup1')
     dg.add_destination('1.1.1.1', 57500, 'self-describing-gpb', 'grpc')
     dg.add_destination('2.2.2.2', 57500, 'self-describing-gpb', 'grpc')
@@ -246,3 +269,5 @@ if __name__ == '__main__':
 
     sub = TelemetryConfig.Subscription('Sub1', dg, sg, 30000)
     config.configure_subscription(sub)
+
+    print(config.get_config())
