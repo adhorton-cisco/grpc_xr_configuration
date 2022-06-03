@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0, '../')
 from iosxr_grpc.cisco_grpc_client import CiscoGRPCClient
 
+
 class TelemetryConfig:
     def __init__(self, host, port, timeout, user, password):
         """ Constructor Method
@@ -252,22 +253,3 @@ class TelemetryConfig:
             return response
         else:
             return "Target not configurable"
-
-if __name__ == '__main__':
-    ## Sample Configuration ##
-    config = TelemetryConfig('1.2.3.4', 57777, 10, 'user', 'password')
-
-    dg = TelemetryConfig.Destination_Group('DGroup1')
-    dg.add_destination('1.1.1.1', 57500, 'self-describing-gpb', 'grpc')
-    dg.add_destination('2.2.2.2', 57500, 'self-describing-gpb', 'grpc')
-    config.configure_destination_group(dg)
-
-    sg = TelemetryConfig.Sensor_Group('SGroup1')
-    sg.add_sensor_path('Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary')
-    sg.add_sensor_path('Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/detail')
-    config.configure_sensor_group(sg)
-
-    sub = TelemetryConfig.Subscription('Sub1', dg, sg, 30000)
-    config.configure_subscription(sub)
-
-    print(config.get_config())
