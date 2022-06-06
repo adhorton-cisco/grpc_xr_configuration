@@ -61,19 +61,19 @@ def user_friendly_menu():
             dg.add_destination('1.1.1.1', 57500, 'self-describing-gpb', 'grpc')
             dg.add_destination('2.2.2.2', 57500, 'self-describing-gpb', 'grpc')
             print("Created Destination Group: DGroup1")
-            config.configure_destination_group(dg)
+            config.create_destination_group(dg)
             print("Pushed DGroup1 to Router")
 
             sg = TelemetryConfig.Sensor_Group('SGroup1')
             sg.add_sensor_path('Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary')
             sg.add_sensor_path('Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/detail')
             print("Created Sensor Group: SGroup1")
-            config.configure_sensor_group(sg)
+            config.create_sensor_group(sg)
             print("Pushed SGroup1 to Router")
 
             sub = TelemetryConfig.Subscription('Sub1', dg, sg, 30000)
             print("Created Subscription: Sub1")
-            config.configure_subscription(sub)
+            config.create_subscription(sub)
             print("Pushed Sub1 to Router\n")
 
         ## Create Destination Group ##
@@ -172,7 +172,7 @@ def user_friendly_menu():
                     while dgName not in dest_groups.keys():
                         print(dgName + " is not a valid Destination Group. Try Again.\n")
                         dgName = user_input("str", "Destination Group: ")
-                    config.configure_destination_group(dest_groups[dgName])
+                    config.create_destination_group(dest_groups[dgName])
                     print("Destination Group \"" + dgName + "\" is Pushed\n")
                 elif pushChoice == 2:
                     if len(sensor_groups) == 0:
@@ -186,7 +186,7 @@ def user_friendly_menu():
                     while sgName not in sensor_groups.keys():
                         print(sgName + " is not a valid Sensor Group. Try Again.\n")
                         sgName = user_input("str", "Sensor Group: ")
-                    config.configure_sensor_group(sensor_groups[sgName])
+                    config.create_sensor_group(sensor_groups[sgName])
                     print("Sensor Group \"" + sgName + "\" is Pushed\n")
                 elif pushChoice == 3:
                     if len(subscriptions) == 0:
@@ -200,7 +200,7 @@ def user_friendly_menu():
                     while subName not in subscriptions.keys():
                         print(subName + " is not a valid Subscription. Try Again.\n")
                         subName = user_input("str", "Subscription: ")
-                    config.configure_subscription(subscriptions[subName])
+                    config.create_subscription(subscriptions[subName])
                     print("Subscription \"" + subName + "\" is Pushed\n")
                 elif pushChoice == 4:
                     print("Returning to Main Menu\n")
@@ -232,7 +232,7 @@ def user_friendly_menu():
                     while dgName not in dest_groups.keys():
                         print(dgName + " is not a valid Destination Group. Try Again.\n")
                         dgName = user_input("str", "Destination Group: ")
-                    config.clear_config(target=dest_groups[dgName])
+                    config.delete_config(target=dest_groups[dgName])
                     print("Destination Group \"" + dgName + "\" is Cleared\n")
                 elif clearChoice == 2:
                     if len(sensor_groups) == 0:
@@ -246,7 +246,7 @@ def user_friendly_menu():
                     while sgName not in sensor_groups.keys():
                         print(sgName + " is not a valid Sensor Group. Try Again.\n")
                         sgName = user_input("str", "Sensor Group: ")
-                    config.clear_config(target=sensor_groups[sgName])
+                    config.delete_config(target=sensor_groups[sgName])
                     print("Sensor Group \"" + sgName + "\" is Cleared\n")
                 elif clearChoice == 3:
                     if len(subscriptions) == 0:
@@ -260,7 +260,7 @@ def user_friendly_menu():
                     while subName not in subscriptions.keys():
                         print(subName + " is not a valid Subscription. Try Again.\n")
                         subName = user_input("str", "Subscription: ")
-                    config.clear_config(target=subscriptions[subName])
+                    config.delete_config(target=subscriptions[subName])
                     print("Subscription \"" + subName + "\" is Cleared\n")
                 elif clearChoice == 4:
                     print("Returning to Main Menu\n")
@@ -271,7 +271,7 @@ def user_friendly_menu():
         elif choice == 8:
             confirmation = user_input("str", "Are You Sure You Want to Clear ALL Configurations? [y/n]: ")
             if confirmation == "y":
-                config.clear_config()
+                config.delete_config()
                 print("All Configurations Cleared\n")
             else:
                 print("No Changes Made")

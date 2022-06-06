@@ -135,7 +135,7 @@ class TelemetryConfig:
             self.interval = interval
 
 
-    def configure_destination_group(self, destination_group):
+    def create_destination_group(self, destination_group):
         """ Configures a new destination-group on the router
 
             :param destination_group: The destination group to configure
@@ -162,7 +162,7 @@ class TelemetryConfig:
         response = self._client.cliconfig(configuration)
         return response
 
-    def configure_sensor_group(self, sensor_group):
+    def create_sensor_group(self, sensor_group):
         """ Configures a new sensor-group
 
             :param sensor_group: The sensor group to configure
@@ -184,7 +184,7 @@ class TelemetryConfig:
         response = self._client.cliconfig(configuration)
         return response
     
-    def configure_subscription(self, subscription):
+    def create_subscription(self, subscription):
         """ Configures a new subscription
 
             :param subscription: The subscription to configure
@@ -213,7 +213,7 @@ class TelemetryConfig:
         """
         return self._client.showcmdtextoutput('show running-config telemetry model-driven')[1]
 
-    def clear_config(self, target=None):
+    def delete_config(self, target=None):
         """ Clears some or all telemetry configurations. If target is not specified, telemetry configuration is erased entirely
         
             :param target: The target configuration to remove
