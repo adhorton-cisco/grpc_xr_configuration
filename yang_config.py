@@ -279,7 +279,7 @@ class MDT:
     def read_subscription(self, subscription):
         """ Read the configuration of a specified subscription
         
-            :param subscription:
+            :param subscription: The name of the subscription
             :type subscription: str
             :return: The subscription in JSON format
             :rtype: str
