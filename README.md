@@ -1,4 +1,5 @@
 ## Telemetry Configuration using gRPC for Cisco IOS-XR in Python
+**README OUT OF DATE**
 This module contains a library with methods that are available to use over gRPC with IOS-XR boxes after 6.0.0. The API has several methods which allows a user to send simple commands to configure telemetry on an IOS-XR box. It abstracts away some of the complexities of the IOS-XR CLI or the iosxr_grpc tool found [here](https://github.com/cisco-ie/ios-xr-grpc-python). It also comes with a user-friendly menu to help configure the router with minimal programming experience required.
 
 If you find any problems or need help, create an issue or contact me directly at adhorton@cisco.com
