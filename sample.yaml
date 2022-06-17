@@ -1,0 +1,50 @@
+# This is a sample config file for the automated telemetry configuration changing script
+# It must be named config.yaml for the script to function
+# It defines the characteristics of the router, the telemetry collector and its backups
+---
+
+### ROUTER CHARACTERISTICS ###
+router:
+  ip: "1.2.3.4"          # IP address of router
+  port: 57777            # Port enabled for grpc communication
+  username: "cisco"      # Username of router
+  password: "cisco123"   # Password of Router
+
+### SENSOR GROUPS FOR TELEMETRY ###
+sensor-groups:
+  - sensor-group-id: "Sample-Sensor-Group-Name"                                                     # Name of a sensor group
+    sensor-paths:
+      - "Cisco-IOS-XR-pfi-im-cmd-oper:interfaces/interface-xr/interface"                            # List of sensor paths in sensor group
+      - "Cisco-IOS-XR-infra-statsd-oper:infrastatistics/interfaces/interface/latest/data-rate"
+  - sensor-group-id: "Sample-Sensor-Group-Name-2"                                                   # Name of a second sensor group
+    sensor-paths:
+      - Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary                                # Another list of sensor paths in the second sensor group
+
+### SERIES OF COLLECTORS ###
+
+# The script will automatically configure the router to send telemetry data to the 
+# the highest-priority active collector. The order of collectors in the list is 
+# the order of their priority
+
+collectors:
+  - destination-group:
+      ip: "4.5.6.7"                       # IP address of the primary collector
+      port: 57777                         # Port the primary collector is listening on
+      destination-id: "First-Collector"   # Name of the primary collector
+      encoding: "self-describing-gpb"     # Encoding for the primary collector
+      protocol: "grpc"                    # Protocol for the primary collector (no-tls by default)
+    subscription:
+      subscription-id: "Subscription-1"   # Name of the subscription
+      interval: 30000                     # Time interval to send the telemetry data
+
+  - destination-group:
+      ip: "7.6.5.4"                          # IP address of the secondary collector
+      port: 57777                            # Port the secondary collector is listening on
+      destination-id: "Second-Collector"     # Name of the secondary collector
+      encoding: "self-describing-gpb"        # Encoding for the primary collector
+      protocol: "grpc"                       # Protocol for the primary collector (no-tls by default)
+    subscription:
+      subscription-id: "Subscription-2"      # Name of the subscription
+      interval: 30000                        # Time interval to send the telemetry data
+
+# Further backup collectors can be added if necessary

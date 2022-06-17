@@ -30,7 +30,7 @@ class MDT:
 
     ########## Destination Groups ##########
 
-    def create_destination(self, destination_group, ip, port, encoding, protocol):
+    def create_destination(self, destination_group, ip, port, encoding, protocol, tls=False):
         """ Creates a new destination group, or adds a new destination to an existing group (if name matches the name of the existing group)
             Can also be used to modify attributes of a destination if name and ip match the name and ip of an exisiting group
         
@@ -44,9 +44,16 @@ class MDT:
             :type encoding: str
             :param protocol: Protocol for the transmission
             :type protocol: str
+            :param tls: Whether or not communication uses tls
+            :type tls: bool, optional
             :return: The Response object
             :rtype: Response object
         """
+
+        protocol_dict = {"protocol": protocol}
+
+        if not tls:
+            protocol_dict["no-tls"] = None
 
         request = {
             "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
@@ -60,9 +67,7 @@ class MDT:
                                         "ipv4-address": ip,
                                         "destination-port": port,
                                         "encoding": encoding,
-                                        "protocol": {
-                                            "protocol": protocol
-                                        }
+                                        "protocol": protocol_dict
                                     }
                                 ]
                             }

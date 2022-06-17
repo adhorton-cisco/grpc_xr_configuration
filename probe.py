@@ -1,6 +1,6 @@
 from subprocess import run
 from yang_config import MDT
-from yaml import load, Loader, dump, Dumper
+from yaml import load, Loader
 
 
 TIMEOUT = 10
@@ -48,7 +48,7 @@ def main():
     for collector in config["collectors"]:
         if ping(collector["destination-group"]["ip"]):
             if router_config.read_subscription(collector["subscription"]["subscription-id"]) != "":
-                break
+                return
             else:
                 index = config["collectors"].index(collector)
                 for backup in config["collectors"][index + 1:]:
@@ -56,4 +56,6 @@ def main():
                         router_config.delete_subscription(backup["subscription"]["subscription-id"])
                 for sensor_group in config["sensor-groups"]:
                     router_config.create_subscription(collector["subscription"]["subscription-id"], sensor_group["sensor-group-id"], collector["destination-group"]["destination-id"], collector["subscription"]["interval"])
-                break
+                return
+
+    print("NO COLLECTORS ACTIVE!")
