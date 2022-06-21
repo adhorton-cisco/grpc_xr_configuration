@@ -1,34 +1,36 @@
-#SAMPLE CONFIG FILE
 ---
-## This info could be retrieved by YANG instead of in config ##
+
 router:
   ip: "10.30.111.168"
-  port: 1234
+  port: 57777
   username: "cisco"
   password: "cisco123!"
-###############################################################
 
 sensor-groups:
   - sensor-group-id: "SG"
     sensor-paths:
       - "Cisco-IOS-XR-pfi-im-cmd-oper:interfaces/interface-xr/interface"
+      - "Cisco-IOS-XR-infra-statsd-oper:infrastatistics/interfaces/interface/latest/data-rate"
+  - sensor-group-id: "SG2"
+    sensor-paths:
+      - Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary
 
 collectors:
   - subscription:
-      subscription-id: "Primary-Sub"
+      subscription-id: "xrfield-sub"
       interval: 30000
     destination-group:
-      ip: "10.30.111.165"
-      port: 1234
-      destination-id: "Primary-DG"
+      ip: "10.30.111.189"
+      port: 57777
+      destination-id: "xrfield"
       encoding: "self-describing-gpb"
       protocol: "grpc"
   - subscription:
-      subscription-id: "Secondary-Sub"
+      subscription-id: "cocoa-sub"
       interval: 30000
     destination-group:
-      ip: "5.6.7.8"
-      port: 1234
-      destination-id: "Secondary-DG"
+      ip: "cocoa"
+      port: 57777
+      destination-id: "cocoa"
       encoding: "self-describing-gpb"
       protocol: "grpc"
