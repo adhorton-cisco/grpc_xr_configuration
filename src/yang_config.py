@@ -346,3 +346,27 @@ class MDT:
 
         response = self._client.deleteconfig(json.dumps(request))
         return response
+
+    def check_connection(self, subscription):
+        """ Checks telemetric connection to a host on the network
+        
+            :param subscription: The subscription to check
+            :type subscription: str
+            :return: Whether or not the host replied
+            :rtype: bool
+        """
+
+        request = {
+            "Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven": {
+                "subscriptions": {
+                    "subscription": [
+                        {
+                            "subscription-id": subscription,
+                        }
+                    ]
+                }
+            }
+        }
+
+        response = json.loads(self._client.getoper(json.dumps(request))[1])
+        return response["Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven"]["subscriptions"]["subscription"][0]["subscription"]["state"] == "active"
