@@ -59,7 +59,7 @@ def clean():
     """
 
     router = config["router"]
-    router_config = MDT(router["ip"], router["port"], TIMEOUT, router["username"], router["password"])
+    router_config = MDT(LOCAL_IP, router["port"], TIMEOUT, router["username"], router["password"])
 
     for sensor_group in config["sensor-groups"]:
         router_config.delete_sensor_group(sensor_group["sensor-group-id"])
