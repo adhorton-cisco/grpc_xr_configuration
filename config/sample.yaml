@@ -5,7 +5,6 @@
 
 ### ROUTER CHARACTERISTICS ###
 router:
-  ip: "1.2.3.4"          # IP address of router
   port: 57777            # Port enabled for grpc communication
   username: "cisco"      # Username of router
   password: "cisco123"   # Password of Router

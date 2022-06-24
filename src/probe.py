@@ -1,12 +1,14 @@
 from yang_config import MDT
 from yaml import load, Loader
 import os
-import time
+from threading import Event
+from time import ctime
 
 
 TIMEOUT = 10
-config_path = "../config/config.yaml"
-config = load(open(os.path.join(os.path.dirname(__file__), config_path), "r"), Loader=Loader)
+LOCAL_IP = "127.0.0.1"
+CONFIG_PATH = "../config/config.yaml"
+config = load(open(os.path.join(os.path.dirname(__file__), CONFIG_PATH), "r"), Loader=Loader)
 
 def setup():
     """
@@ -14,7 +16,7 @@ def setup():
         Creates all sensor groups defined in config.yaml
     """
     router = config["router"]
-    router_config = MDT(router["ip"], router["port"], TIMEOUT, router["username"], router["password"])
+    router_config = MDT(LOCAL_IP, router["port"], TIMEOUT, router["username"], router["password"])
 
     for collector in config["collectors"]:
         dg = collector["destination-group"]
@@ -33,7 +35,7 @@ def check():
     """
 
     router = config["router"]
-    router_config = MDT(router["ip"], router["port"], TIMEOUT, router["username"], router["password"])
+    router_config = MDT(LOCAL_IP, router["port"], TIMEOUT, router["username"], router["password"])
 
     for collector in config["collectors"]:
         # If the collector does not yet have a subscription, create it
@@ -50,14 +52,33 @@ def check():
             return index
         
     return -1
+
+def clean():
+    """
+        Removes all associated Destination Groups, Sensor Groups, and Subscriptions
+    """
+
+    router = config["router"]
+    router_config = MDT(router["ip"], router["port"], TIMEOUT, router["username"], router["password"])
+
+    for sensor_group in config["sensor-groups"]:
+        router_config.delete_sensor_group(sensor_group["sensor-group-id"])
+        print("Removed ", sensor_group["sensor-group-id"])
     
+    for collector in config["collectors"]:
+        router_config.delete_subscription(collector["subscription"]["subscription-id"])
+        print("Removed ", collector["subscription"]["subscription-id"])
+        router_config.delete_destination_group(collector["destination-group"]["destination-id"])
+        print("Removed ", collector["destination-group"]["destination-id"])
 
 if __name__ == "__main__":
+    event = Event()
     setup()
+    
     while True:
         collector = check()
         if collector == -1:
-            print("NO COLLECTORS ACTIVE: ", time.ctime())
-            time.sleep(15)
+            print("NO COLLECTORS ACTIVE: ", ctime())
+            event.wait(15)
         else:
-            time.sleep(config["collectors"][collector]["subscription"]["interval"]/1000)
+            event.wait(config["collectors"][collector]["subscription"]["interval"]/1000)
