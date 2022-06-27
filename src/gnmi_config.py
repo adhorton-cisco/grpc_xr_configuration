@@ -1,32 +1,46 @@
 import json
-from iosxr_grpc.cisco_grpc_client import CiscoGRPCClient
+from pygnmi.client import gNMIclient
 
 class MDT:
-    def __init__(self, host, port, timeout, user, password):
+    def __init__(self, host, port, user, password):
         """ Constructor Method
 
             :param host: The ip address for the device
             :type host: str
             :param port: The port for the device
             :type port: int
-            :param timeout: How long before the rpc call timeout
-            :type timeout: int
             :param user: Username for device login
             :type user: str
             :param password: Password for device login
             :type password: str
         """
 
-        self._client = CiscoGRPCClient(host, port, timeout, user, password)
+        self._client = gNMIclient(target=(host, port), username=user, password=password, insecure=True)
+        self._client.connect()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self._client.close()
+
+    def get_capabilities(self):
+        """ Gets the capabilities of the target device
+
+            :return: The gNMI Response
+            :type: dict
+        """
+
+        return self._client.capabilities()
 
     def get_config(self):
         """ Gets the current telemetry configuration in JSON format
 
-            :return: The current telemetry configuration in JSON
-            :rtype: str
+            :return: The gNMI Notification
+            :rtype: dict
         """
 
-        return self._client.getconfig('{"Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": [null]}')[1]
+        return self._client.get(path=['Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven'], encoding='json_ietf')
 
     ########## Destination Groups ##########
 
@@ -46,8 +60,8 @@ class MDT:
             :type protocol: str
             :param tls: Whether or not communication uses tls
             :type tls: bool, optional
-            :return: The Response object
-            :rtype: Response object
+            :return: The gNMI Response
+            :rtype: dict
         """
 
         protocol_dict = {"protocol": protocol}
@@ -55,8 +69,11 @@ class MDT:
         if not tls:
             protocol_dict["no-tls"] = None
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
+        request = [
+            (
+            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven",
+            
+            {
                 "destination-groups": {
                     "destination-group": [
                         {
@@ -75,9 +92,10 @@ class MDT:
                     ]
                 }
             }
-        }
+        )
+        ]
 
-        response = self._client.mergeconfig(json.dumps(request))
+        response = self._client.set(update=request, encoding='json_ietf')
         return response
 
     def read_destination_group(self, destination_group):
@@ -85,59 +103,34 @@ class MDT:
         
             :param destination_group: Name of the destination group
             :type destination_group: str
-            :return: The destination group in JSON format
-            :rtype: str
+            :return: The gNMI Notification
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "destination-groups":{
-                    "destination-group": [{
-                        "destination-id": destination_group
-                    }]
-                }
-           
-            }
-        }
-        return self._client.getconfig(json.dumps(request))[1]
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups/destination-group[destination-id={}]'.format(destination_group)
+        return self._client.get(path=[request], encoding='json_ietf')
 
     def read_all_destination_groups(self):
         """ Reads the configuration of all destination groups
 
-            :return: All destination groups in JSON format
-            :rtype: str
+            :return: The gNMI Notification
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "destination-groups":{
-                    "destination-group": []
-                }
-            }
-        }
-
-        self._client.getconfig(json.dumps(request))[1]
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups'
+        self._client.get(path=[request], encoding='json_ietf')
     
     def delete_destination_group(self, destination_group):
         """ Deletes the configuration of a specific destination group
         
             :param destination_group: Name of the destination group
             :type destination_group: str
-            :return: The Response object
-            :rtype: Response object
+            :return: The gNMI Response
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "destination-groups":{
-                    "destination-group": [{
-                        "destination-id": destination_group
-                    }]
-                }
-            }
-        }
-
-        response = self._client.deleteconfig(json.dumps(request))
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups/destination-group[destination-id={}]'.format(destination_group)
+        response = self._client.set(delete=[request], encoding='json_ietf')
         return response
 
     ########## Sensor Groups ##########
@@ -149,12 +142,15 @@ class MDT:
             :type sensor_group: str
             :param sensor_path: The name of the sensor path
             :type sensor_path: str
-            :return: The Response object
-            :rtype: Response object
+            :return: The gNMI Response
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
+        request = [
+            (
+            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven",
+
+            {
                 "sensor-groups": {
                     "sensor-group": [
                         {
@@ -170,9 +166,10 @@ class MDT:
                     ]
                 }
             }
-        }
+        )
+        ]
 
-        response = self._client.mergeconfig(json.dumps(request))
+        response = self._client.set(update=request, encoding='json_ietf')
         return response
 
     def read_sensor_group(self, sensor_group):
@@ -180,58 +177,34 @@ class MDT:
         
             :param sensor_group: The name of the sensor group
             :type sensor_group: str
-            :return: The sensor group in JSON format
-            :rtype: str
+            :return: The gNMI Notification
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "sensor-groups":{
-                    "sensor-group": [{
-                        "sensor-group-identifier": sensor_group
-                    }]
-                }
-            }
-        }
-        
-        return self._client.getconfig(json.dumps(request))[1]
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/sensor-groups/sensor-group[sensor-group-identifier={}]'.format(sensor_group)
+        return self._client.get(path=[request], encoding='json_ietf')
 
     def read_all_sensor_groups(self):
         """ Reads the configuration of all sensor groups
         
-            :return: All sensor groups in JSON format
-            :rtype: str
+            :return: The gNMI Notification
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "sensor-groups":{
-                    "sensor-group": []
-                }
-            }
-        }
-
-        return self._client.getconfig(json.dumps(request))[1]
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/sensor-groups'
+        return self._client.get(path=[request], encoding='json_ietf')
 
     def delete_sensor_group(self, sensor_group):
         """ Deletes the configuration of a specific sensor group
         
             :param sensor_group: The name of the sensor_group
             :type sensor_group: str
-            :return: The Response object
-            :rtype: Response object
+            :return: The gNMI Response
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "sensor-groups":{
-                    "sensor-group": [{
-                        "sensor-group-identifier": sensor_group
-                    }]
-                }
-            }
-        }
-        response = self._client.deleteconfig(json.dumps(request))
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/sensor-groups/sensor-group[sensor-group-identifier={}]'.format(sensor_group)
+        response = self._client.set(delete=[request], encoding='json_ietf')
         return response
 
     ########## Subscriptions ##########
@@ -247,12 +220,15 @@ class MDT:
             :type destination_group: str
             :param interval: The interval to stream data in milliseconds
             :type interval: int
-            :return: The Response object
-            :rtype: Response object
+            :return: The gNMI Response
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
+        request = [
+            (
+            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven",
+            
+            {
                 "subscriptions": {
                     "subscription": [
                         {
@@ -276,9 +252,10 @@ class MDT:
                     ]
                 }
             }
-        }
+        )
+        ]
 
-        response = self._client.mergeconfig(json.dumps(request))
+        response = self._client.set(update=request, encoding='json_ietf')
         return response
 
     def read_subscription(self, subscription):
@@ -286,41 +263,23 @@ class MDT:
         
             :param subscription: The name of the subscription
             :type subscription: str
-            :return: The subscription in JSON format
-            :rtype: str
+            :return: The gNMI Notification
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "subscriptions": {
-                    "subscription": [
-                        {
-                            "subscription-identifier": subscription,
-                        }
-                    ]
-                }
-            }
-        }
-
-        response = self._client.getconfig(json.dumps(request))[1]
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/subscriptions/subscription[subscription-identifier={}]'.format(subscription)
+        response = self._client.get(path=[request], encoding='json_ietf')
         return response
 
     def read_all_subscriptions(self):
         """ Reads the configuration of all subscriptions
         
-            :return: All subscriptions in JSON format
-            :rtype: str
+            :return: The gNMI Notification
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "subscriptions": {
-                    "subscription": []
-                }
-            }
-        }
-
-        response = self._client.getconfig(json.dumps(request))[1]
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/subscriptions'
+        response = self._client.get(path=[request], encoding='json_ietf')
         return response
 
     def delete_subscription(self, subscription):
@@ -328,23 +287,12 @@ class MDT:
         
             :param subscription:
             :type subscription: str
-            :return: The Response object
-            :rtype: Response object
+            :return: The gNMI Response
+            :rtype: dict
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven": {
-                "subscriptions": {
-                    "subscription": [
-                        {
-                            "subscription-identifier": subscription,
-                        }
-                    ]
-                }
-            }
-        }
-
-        response = self._client.deleteconfig(json.dumps(request))
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/subscriptions/subscription[subscription-identifier={}]'.format(subscription)
+        response = self._client.set(delete=[request], encoding='json_ietf')
         return response
 
     def check_connection(self, subscription):
@@ -352,21 +300,15 @@ class MDT:
         
             :param subscription: The subscription to check
             :type subscription: str
-            :return: Whether or not the host replied
+            :return: Whether or not the subscription is active
             :rtype: bool
         """
 
-        request = {
-            "Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven": {
-                "subscriptions": {
-                    "subscription": [
-                        {
-                            "subscription-id": subscription,
-                        }
-                    ]
-                }
-            }
-        }
+        request = 'Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven/subscriptions/subscription[subscription-id={}]/subscription/state'.format(subscription)
+        response = self._client.get(path=[request], encoding='json_ietf')
+        return response["notification"][0]["update"][0]["val"] == "active"
 
-        response = json.loads(self._client.getoper(json.dumps(request))[1])
-        return response["Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven"]["subscriptions"]["subscription"][0]["subscription"]["state"] == "active"
+    def temp(self):
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven'
+        response = self._client.get(path=[request], encoding='json_ietf')
+        return response
