@@ -6,7 +6,7 @@ from time import ctime
 
 
 DELAY = 10
-LOCAL_IP = "10.30.111.171"
+LOCAL_IP = "127.0.0.1"
 CONFIG_PATH = "../config/config.yaml"
 config = load(open(os.path.join(os.path.dirname(__file__), CONFIG_PATH), "r"), Loader=Loader)
 
