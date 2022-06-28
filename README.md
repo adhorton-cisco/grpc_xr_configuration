@@ -1,5 +1,5 @@
 # Telemetry Collector Health Monitor for IOS-XR
-This repository contains the source code for a docker image that can be built and run on IOS-XR to redirect the streaming of telemetry data to an active backup collector when a primary collector goes down for any reason. It will automatically reconfigure the router to send telemetry data back to the primary collector when it comes back up. It runs in the backround as a docker container managed by the IOS-XR appmgr.
+This repository contains the source code for a docker image that can be built and run on IOS-XR to redirect the streaming of telemetry data to an active backup collector when a primary collector goes down for any reason. It will automatically reconfigure the router to send telemetry data back to the primary collector when it comes back up. It runs in the background as a docker container managed by the IOS-XR appmgr.
 
 Find the latest docker image at the [Docker Hub](https://hub.docker.com/r/adhorton/xr-collector-health-monitor)
 
@@ -72,7 +72,7 @@ If you discover any problems or need help, create an issue or contact me directl
     ```sh
     appmgr application <start/stop> name <NAME>
     ```
-    
+
 - Show all applications (Similar to docker ps -a)
     ```sh
     show appmgr application-table
