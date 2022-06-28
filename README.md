@@ -1,62 +1,93 @@
-## Telemetry Configuration using gRPC for Cisco IOS-XR in Python
-**README OUT OF DATE**
-This module contains a library with methods that are available to use over gRPC with IOS-XR boxes after 6.0.0. The API has several methods which allows a user to send simple commands to configure telemetry on an IOS-XR box. It abstracts away some of the complexities of the IOS-XR CLI or the iosxr_grpc tool found [here](https://github.com/cisco-ie/ios-xr-grpc-python). It also comes with a user-friendly menu to help configure the router with minimal programming experience required.
+## Telemetry Collector Health Monitor for IOS-XR
+This repository contains the source code for a docker image that can be built and run on IOS-XR to redirect the streaming of telemetry data to an active backup collector when a primary collector goes down for any reason. It will automatically reconfigure the router to send telemetry data back to the primary collector when it comes back up. It runs in the backround as a docker container managed by the IOS-XR appmgr.
 
-If you find any problems or need help, create an issue or contact me directly at adhorton@cisco.com
+Find the latest docker image at the [Docker Hub](https://hub.docker.com/r/adhorton/xr-collector-health-monitor)
+
+If you discover any problems or need help, create an issue or contact me directly at adhorton@cisco.com
 
 ## Installation
-1. Clone this repository into your project directory
-```sh
-git clone https://github.com/adhorton-cisco/ios_xr_telemetry_configuration.git
-```
-2. Create your virtual environment
-3. Ensure that all dependencies are installed
-```sh
-pip install -r requirements.txt
-```
-The source files for iosxr_grpc are included in the repository because there is currently a version issue that prevents it being installed with pip. This repository will be modified in the future if the issue is resolved
+1. Build Image from Scratch OR Pull from Docker Hub
+    a) Build from Scratch
+    - Clone Repository
+    ```sh
+    git clone https://github.com/adhorton-cisco/xr-collector-health-monitor.git
+    ```
+    - Build Image in Root Directory of Repository
+    ```sh
+    docker build -t <NAME-OF-YOUR-IMAGE> .
+    ```    
+    
+    b) Pull from Docker Hub
+    ```sh
+    docker pull adhorton/xr-collector-health-monitor:<VERSION>
+    ```
 
-4. Enable gRPC after you SSH into the router
-```
-grpc
- port 57777
- no-tls
- !
-!
-```
+2. Save Image to .tar File
+    ```sh
+    docker save <IMAGE-NAME:TAG> > <NAME>.tar
+    ```
 
-## Usage
-Access the user-friendly menu by running telemetry_menu.py
+3. Package Application as RPM
+    - Follow Instructions from [xr-appmgr-build](https://github.com/ios-xr/xr-appmgr-build)
 
-If you would like to use the methods directly from the module, check the sample below.
-This sample configuration can also be found in telemetry_menu.py
-```
-from config_telemetry import TelemetryConfig
-config = TelemetryConfig('1.2.3.4', 57777, 10, 'user', 'password')
+4. Transfer .rpm File to /misc/app_host Directory on Router
+   ```sh
+   scp /path/to/your/file/<NAME>.rpm user@router:/misc/app_host
+   ```
 
-dg = TelemetryConfig.Destination_Group('DGroup1')
-dg.add_destination('1.1.1.1', 57500, 'self-describing-gpb', 'grpc')
-dg.add_destination('2.2.2.2', 57500, 'self-describing-gpb', 'grpc')
-config.configure_destination_group(dg)
+5. Create config.yaml File
+    - Create a file named "config.yaml" in an empty directory that follows the conventions layed out in config/sample.yaml. This will be mounted into the running application to tell it information about the different collectors on the network and the desired telemetry configuration. To enter the Linux environment from IOS-XR, use the "bash" command.
 
-sg = TelemetryConfig.Sensor_Group('SGroup1')
-sg.add_sensor_path('Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary')
-sg.add_sensor_path('Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/detail')
-config.configure_sensor_group(sg)
+6. Install RPM Package to appmgr
+    - In the IOS-XR CLI, 
+    ```sh
+    appmgr package install rpm /misc/app_host/<NAME>.rpm
+    ```
+    - To confirm that the package is installed
+    ```
+    show appmgr packages installed
+    ```
 
-sub = TelemetryConfig.Subscription('Sub1', dg, sg, 30000)
-config.configure_subscription(sub)
+7. Activate the Application
+    - Enter the config menu
+    - Activate the application
+    ```sh
+    appmgr application <NAME> activate type docker source <NAME> docker-run-opts "-itd -v /path/to/config/file:/config:ro --network host"
+    ```
+    - Commit configuration
+    - Application will automatically configure streaming telemetry to the first active collector
+    - Confirm that application is running successfully
+    ```sh
+    show appmgr application name <NAME> info summary
+    ```
 
-print(config.get_config())
-```
+## Using IOS-XR appmgr
+- View application logs
+    ```sh
+    show appmgr application name <NAME> logs
+    ```
+
+- Start/Stop applications
+    ```sh
+    appmgr application <start/stop> name <NAME>
+    ```
+
+- Uninstall package
+    ```sh
+    appmgr package uninstall package <NAME>
+    ```
+    
+- Show all applications (Similar to docker ps -a)
+    ```sh
+    show appmgr application-table
+    ```
+
 
 ## Useful Links
 
-If you would like to test this all out with IOS-XRv, use the following link to request access to the vagrant box.
-
-https://xrdocs.github.io/
+For additional resources on telemetry, app hosting, or anything else to do with IOS-XR, visit [xrdocs](https://xrdocs.io/)
 
 ## Contributors/Contact
 * Adam Horton - adhorton@cisco.com
 
-Project Link: [https://github.com/adhorton-cisco/ios_xr_telemetry_configuration](https://github.com/adhorton-cisco/ios_xr_telemetry_configuration)
+Project Link: [https://github.com/adhorton-cisco/xr-collector-health-monitor](https://github.com/adhorton-cisco/xr-collector-health-monitor)
