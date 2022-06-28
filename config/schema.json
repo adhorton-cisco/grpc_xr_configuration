@@ -1,0 +1,91 @@
+{
+    "router": {
+        "type": "dict",
+        "required": true,
+        "schema": {
+            "port": {
+                "type": "integer",
+                "required": true
+            },
+            "username": {
+                "type": "string",
+                "required": true
+            },
+            "password": {
+                "type": "string",
+                "required": true
+            }
+        }
+    },
+    "sensor-groups": {
+        "type": "list",
+        "required": true,
+        "schema": {
+            "type": "dict",
+            "schema": {
+                "sensor-group-id": {
+                    "required": true,
+                    "type": "string"
+                },
+                "sensor-paths": {
+                    "required": true,
+                    "type": "list",
+                    "schema": {
+                        "required": true,
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "collectors": {
+        "type": "list",
+        "required": true,
+        "minlength": 2,
+        "schema": {
+            "type": "dict",
+            "schema": {
+                "subscription": {
+                    "type": "dict",
+                    "required": true,
+                    "schema": {
+                        "subscription-id": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "interval": {
+                            "type": "integer",
+                            "required": true
+                        }
+                    }
+                },
+                "destination-group": {
+                    "type": "dict",
+                    "required": true,
+                    "schema": {
+                        "ip": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "port": {
+                            "type": "integer",
+                            "required": true
+                        },
+                        "destination-id": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "encoding": {
+                            "type": "string",
+                            "required": true
+                        },
+                        "protocol": {
+                            "type": "string",
+                            "required": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

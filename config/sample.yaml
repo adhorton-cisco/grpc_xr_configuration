@@ -1,5 +1,7 @@
 # This is a sample config file for the automated telemetry configuration changing script
 # It must be named config.yaml for the script to function
+# It must conform to the schema defined in schema.json
+# It will be mounted into the docker container at runtime
 # It defines the characteristics of the router, the telemetry collector and its backups
 ---
 

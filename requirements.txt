@@ -1,3 +1,4 @@
 pygnmi
 protobuf
 pyyaml
+cerberus

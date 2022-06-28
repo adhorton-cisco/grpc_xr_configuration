@@ -1,14 +1,33 @@
+from modulefinder import Module
 from gnmi_config import MDT
-from yaml import load, Loader
+import yaml
 import os
 from threading import Event
 from time import ctime
+from cerberus import Validator
+import json
 
 
 DELAY = 10
 LOCAL_IP = "127.0.0.1"
 CONFIG_PATH = "../config/config.yaml"
-config = load(open(os.path.join(os.path.dirname(__file__), CONFIG_PATH), "r"), Loader=Loader)
+
+try:
+    config = yaml.load(open(os.path.join(os.path.dirname(__file__), CONFIG_PATH), "r"), Loader=yaml.Loader)
+except FileNotFoundError as exc:
+    print('config.yaml could not be found')
+    raise exc
+
+
+def validate_config():
+    with open("schema.json") as f:
+        schema = json.load(f)
+    
+    v = Validator(schema)
+    if not v.validate(config):
+        print(v.errors)
+        raise RuntimeError("config.yaml formatted incorrectly")
+
 
 def setup():
     """
@@ -56,6 +75,7 @@ def check():
 
 if __name__ == "__main__":
     event = Event()
+    validate_config()
     setup()
     
     while True:
