@@ -29,11 +29,9 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
-#################################################
 logging.getLogger('pygnmi').setLevel(logging.CRITICAL)
 
-with MDT("10.30.111.171", 57777, 'cisco', 'cisco123!') as bob:
-    bob.read_subscription('blah')
+#################################################
 
 DELAY = 10
 LOCAL_IP = "127.0.0.1"
