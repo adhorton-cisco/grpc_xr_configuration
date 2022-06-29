@@ -1,6 +1,6 @@
 FROM python:3.10.5-slim-buster
 
-WORKDIR /src
+WORKDIR /app
 
 COPY /src /config/schema.json requirements.txt .
 
