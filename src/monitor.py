@@ -6,7 +6,7 @@ import sys
 import json
 import logging
 import logging.handlers
-from threading import Event
+import signal
 from cerberus import Validator
 from grpc import FutureTimeoutError
 
@@ -16,7 +16,7 @@ log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 
 logFile = 'app.log'
 
-file_handler = logging.handlers.RotatingFileHandler(logFile, mode='a', maxBytes=5*1024, backupCount=1)
+file_handler = logging.handlers.RotatingFileHandler(logFile, mode='a', maxBytes=5*1024*1024, backupCount=1)
 file_handler.setFormatter(log_formatter)
 file_handler.setLevel(logging.DEBUG)
 
@@ -76,13 +76,13 @@ def setup():
                 dg = collector["destination-group"]
                 router_config.create_destination(dg["destination-id"], dg["ip"], dg["port"], dg["encoding"], dg["protocol"])
 
-                logger.info('Created Destination Group ' + dg["destination-id"])
+                logger.info('Created Destination Group: ' + dg["destination-id"])
 
             for sensor_group in config["sensor-groups"]:
                 for sensor_path in sensor_group["sensor-paths"]:
                     router_config.create_sensor_path(sensor_group["sensor-group-id"], sensor_path)
 
-                logger.info('Created Sensor Group ' + sensor_group["sensor-group-id"])
+                logger.info('Created Sensor Group: ' + sensor_group["sensor-group-id"])
 
     except FutureTimeoutError as err:
         logger.error('Failed to connect to host')
@@ -90,6 +90,23 @@ def setup():
         raise err
 
     logger.info('Setup Successful')
+
+def clean():
+    """
+        Removes all associated Destination Groups, Sensor Groups, and Subscriptions
+    """
+
+    router = config["router"]
+    with MDT(LOCAL_IP, router["port"], router["username"], router["password"]) as router_config:
+        for sensor_group in config["sensor-groups"]:
+            router_config.delete_sensor_group(sensor_group["sensor-group-id"])
+            logger.info("Removed Sensor Group: " + sensor_group["sensor-group-id"])
+        
+        for collector in config["collectors"]:
+            router_config.delete_subscription(collector["subscription"]["subscription-id"])
+            logger.info("Removed Subscription: " + collector["subscription"]["subscription-id"])
+            router_config.delete_destination_group(collector["destination-group"]["destination-id"])
+            logger.info("Removed Destination Group: " + collector["destination-group"]["destination-id"])
 
 def check():
     """
@@ -111,7 +128,7 @@ def check():
 
                 # Check the state of the subscription, if it is active, delete all subsequent subscriptions
                 if router_config.check_connection(collector["subscription"]["subscription-id"]):
-                    logger.info('Currently Streaming ' + collector["subscription"]["subscription-id"])
+                    logger.info('Currently Streaming to: ' + collector["subscription"]["subscription-id"])
                     index = config["collectors"].index(collector)
                     for backup in config["collectors"][index + 1:]:
                         if router_config.read_subscription(backup["subscription"]["subscription-id"]) != None:
@@ -126,15 +143,17 @@ def check():
     return -1
 
 if __name__ == "__main__":
-    event = Event()
     validate_config()
     setup()
     
     while True:
         collector = check()
         if collector == -1:
-            for x in range(DELAY):
-                event.wait(1)
+            if signal.sigtimedwait([signal.SIGTERM], DELAY) != None:
+                break
         else:
-            for x in range(int(config["collectors"][collector]["subscription"]["interval"]/1000)):
-                event.wait(1)
+            if signal.sigtimedwait([signal.SIGTERM], config["collectors"][collector]["subscription"]["interval"]/1000) != None:
+                break
+
+    clean()
+    logger.info('Exited Successfully')
