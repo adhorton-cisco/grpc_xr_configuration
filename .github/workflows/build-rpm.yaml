@@ -30,5 +30,11 @@ jobs:
         # tags: ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:latest
         outputs: type=docker,dest=/package/tmp/xr-collector-health-monitor.tar
 
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: myimage
+        path: /package/tmp/xr-collector-health-monitor.tar
+
     - name: Package as RPM
       run: ./package/appmgr_build -b /package/build.yaml
