@@ -4,4 +4,4 @@ packages:
   version: "1.2.1"
   sources:
     - name: xr-collector-health-monitor
-      file: tmp/xr-collector-health-monitor.tar
+      file: ../xr-collector-health-monitor.tar

@@ -31,4 +31,7 @@ jobs:
         outputs: type=docker,dest=xr-collector-health-monitor.tar
 
     - name: Package as RPM
-      run: ./package/appmgr_build -b /package/build.yaml
+      run: |
+        cd package
+        chmod 777 appmgr_build
+        ./appmgr_build -b /build.yaml
