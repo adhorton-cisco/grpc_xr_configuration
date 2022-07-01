@@ -1,0 +1,7 @@
+packages:
+- name: "xr-collector-health-monitor"
+  release: "eXR_7.3.1"
+  version: "1.2.1"
+  sources:
+    - name: xr-collector-health-monitor
+      file: tmp/xr-collector-health-monitor.tar
