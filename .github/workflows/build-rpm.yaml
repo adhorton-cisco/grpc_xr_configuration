@@ -34,4 +34,4 @@ jobs:
       run: |
         cd package
         chmod 777 appmgr_build
-        ./appmgr_build -b /build.yaml
+        ./appmgr_build -b ./build.yaml
