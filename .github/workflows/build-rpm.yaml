@@ -28,7 +28,7 @@ jobs:
         file: ./Dockerfile
         # push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:latest
-        outputs: type=docker,dest=/package/tmp/xr-collector-health-monitor.tar
+        outputs: type=docker,dest=xr-collector-health-monitor.tar
 
     - name: Package as RPM
       run: ./package/appmgr_build -b /package/build.yaml
