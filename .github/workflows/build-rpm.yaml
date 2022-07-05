@@ -33,11 +33,23 @@ jobs:
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:${{ github.event.inputs.version}}
         outputs: type=docker,dest=xr-collector-health-monitor.tar
 
+    -name: Debugging
+    run: |
+      ls
+      cd package
+      ls
+
     - name: Package as RPM
       run: |
         cd package
         chmod 777 appmgr_build
         ./appmgr_build -b ./build.yaml
+
+    -name: Debugging 2
+    run: |
+      ls
+      cd package
+      ls
 
     - name: Upload RPM
       uses: actions/upload-artifact@v2
