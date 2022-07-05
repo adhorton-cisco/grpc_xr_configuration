@@ -43,7 +43,7 @@ jobs:
       run: |
         ls
         echo ---
-        cd package
+        cd RPMS
         ls
         echo  ---
         cd build
