@@ -42,3 +42,11 @@ jobs:
       with:
         name: xr-collector-health-monitor-${{ github.event.inputs.version }}-eXR_7.3.1.x86_64.rpm
         path: package/RPMS/x86_64/xr-collector-health-monitor-${{ github.event.inputs.version }}-eXR_7.3.1.x86_64.rpm
+
+    - name: Push RPM
+      run: |
+        mv package/RPMS/x86_64/xr-collector-health-monitor-${{ github.event.inputs.version }}-eXR_7.3.1.x86_64.rpm RPMS
+        git config --global user.name 'Adam Horton'
+        git config --global user.email 'adhorton@cisco.com'
+        git commit -am "Automated Build"
+        git push
