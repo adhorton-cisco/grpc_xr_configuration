@@ -1,4 +1,4 @@
-name: Docker Image and RPM Build
+name: RPM Build
 
 on:
   workflow_dispatch:
@@ -29,14 +29,18 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:${{ github.event.inputs.version}}
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:${{ github.event.inputs.version }}
         outputs: type=docker,dest=xr-collector-health-monitor.tar
+
+    - name: Test Images
+      run: |
+        docker images
 
     - name: Package as RPM
       run: |
         cd package
         chmod 777 appmgr_build
+        sed 's/{VERSION}/${{ github.event.inputs.version }}' package/build.yaml
         ./appmgr_build -b ./build.yaml
 
     - name: Upload RPM
