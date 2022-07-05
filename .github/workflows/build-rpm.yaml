@@ -33,7 +33,7 @@ jobs:
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:${{ github.event.inputs.version}}
         outputs: type=docker,dest=xr-collector-health-monitor.tar
 
-    -name: Debugging
+    - name: Debugging
     run: |
       ls
       cd package
@@ -45,7 +45,7 @@ jobs:
         chmod 777 appmgr_build
         ./appmgr_build -b ./build.yaml
 
-    -name: Debugging 2
+    - name: Debugging 2
     run: |
       ls
       cd package
