@@ -43,10 +43,10 @@ jobs:
       run: |
         ls
         echo ---
-        cd RPMS
+        cd package
         ls
         echo  ---
-        cd build
+        cd RPMS
         ls -R
 
     - name: Upload RPM
