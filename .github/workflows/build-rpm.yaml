@@ -40,7 +40,7 @@ jobs:
       run: |
         cd package
         chmod 777 appmgr_build
-        sed -i "s/{VERSION}/${{ github.event.inputs.version }}/" package/build.yaml
+        sed -i "s/{VERSION}/${{ github.event.inputs.version }}/" build.yaml
         ./appmgr_build -b ./build.yaml
 
     - name: Upload RPM
