@@ -3,6 +3,10 @@
         "type": "dict",
         "required": true,
         "schema": {
+            "ip": {
+                "type": "string",
+                "required": true
+            },
             "port": {
                 "type": "integer",
                 "required": true
@@ -13,6 +17,10 @@
             },
             "password": {
                 "type": "string",
+                "required": true
+            },
+            "tls": {
+                "type": "boolean",
                 "required": true
             }
         }
@@ -82,6 +90,16 @@
                         "protocol": {
                             "type": "string",
                             "required": true
+                        },
+                        "tls": {
+                            "type": "boolean",
+                            "required": true
+                        },
+                        "tls-hostname": {
+                            "type": "string",
+                            "dependencies": {
+                                "tls": true
+                            }
                         }
                     }
                 }

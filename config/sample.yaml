@@ -1,22 +1,25 @@
 # This is a sample config file for the automated telemetry configuration changing script
 # It must be named config.yaml for the script to function
-# It must conform to the schema defined in schema.json
+# It must conform to the schema defined in src/schema.json
 # It will be mounted into the docker container at runtime
 # It defines the characteristics of the router, the telemetry collector and its backups
 ---
 
 ### ROUTER CHARACTERISTICS ###
 router:
-  port: 57777            # Port enabled for grpc communication
-  username: "cisco"      # Username of router
-  password: "cisco123"   # Password of Router
+  ip: "127.0.0.1"         # IP address of the router (Use 127.0.0.1 if running on local machine)
+  port: 57777             # Port enabled for grpc communication
+  username: "cisco"       # Username of router
+  password: "cisco123"    # Password of router
+  tls: true               # Encrypt configuration messages from xr-collector-health-monitor
+                          # Must have grpc configured with tls and /misc/config/grpc/ems.pem copied into mounted config directory
 
 ### SENSOR GROUPS FOR TELEMETRY ###
 sensor-groups:
   - sensor-group-id: "Sample-Sensor-Group-Name"                                                     # Name of a sensor group
     sensor-paths:
       - "Cisco-IOS-XR-pfi-im-cmd-oper:interfaces/interface-xr/interface"                            # List of sensor paths in sensor group
-      - "Cisco-IOS-XR-infra-statsd-oper:infrastatistics/interfaces/interface/latest/data-rate"
+      - "Cisco-IOS-XR-infra-statsd-oper:infra-statistics/interfaces/interface/latest/data-rate"
   - sensor-group-id: "Sample-Sensor-Group-Name-2"                                                   # Name of a second sensor group
     sensor-paths:
       - Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary                                # Another list of sensor paths in the second sensor group
@@ -33,7 +36,8 @@ collectors:
       port: 57777                         # Port the primary collector is listening on
       destination-id: "First-Collector"   # Name of the primary collector
       encoding: "self-describing-gpb"     # Encoding for the primary collector
-      protocol: "grpc"                    # Protocol for the primary collector (no-tls by default)
+      protocol: "grpc"                    # Protocol for the primary collector
+      tls: false                          # Do not encrypt telemetry data with tls
     subscription:
       subscription-id: "Subscription-1"   # Name of the subscription
       interval: 30000                     # Time interval to send the telemetry data
@@ -43,7 +47,9 @@ collectors:
       port: 57777                            # Port the secondary collector is listening on
       destination-id: "Second-Collector"     # Name of the secondary collector
       encoding: "self-describing-gpb"        # Encoding for the primary collector
-      protocol: "grpc"                       # Protocol for the primary collector (no-tls by default)
+      protocol: "grpc"                       # Protocol for the primary collector
+      tls: true                              # Encrypt telemetry data with tls. CA Certificate must be copied into /misc/config/grpc/dialout/dialout.pem in advance
+      tls-hostname: "hostname.com"           # Optional parameter to define the tls-hostname when tls is true
     subscription:
       subscription-id: "Subscription-2"      # Name of the subscription
       interval: 30000                        # Time interval to send the telemetry data

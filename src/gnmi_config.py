@@ -1,8 +1,7 @@
-import json
 from pygnmi.client import gNMIclient
 
 class MDT:
-    def __init__(self, host, port, user, password):
+    def __init__(self, host, port, user, password, path_cert=None):
         """ Constructor Method
 
             :param host: The ip address for the device
@@ -13,9 +12,13 @@ class MDT:
             :type user: str
             :param password: Password for device login
             :type password: str
+            :param path_cert: Path to certificate for a secure TLS connection
+            :type password: str, optional
         """
-
-        self._client = gNMIclient(target=(host, port), username=user, password=password, insecure=True)
+        if path_cert == None:
+            self._client = gNMIclient(target=(host, port), username=user, password=password, insecure=True)
+        else:
+            self._client = gNMIclient(target=(host, port), username=user, password=password, path_cert=path_cert, override="ems.cisco.com")
         self._client.connect()
 
     def __enter__(self):
@@ -44,7 +47,7 @@ class MDT:
 
     ########## Destination Groups ##########
 
-    def create_destination(self, destination_group, ip, port, encoding, protocol, tls=False):
+    def create_destination(self, destination_group, ip, port, encoding, protocol, tls, tls_hostname=None):
         """ Creates a new destination group, or adds a new destination to an existing group (if name matches the name of the existing group)
             Can also be used to modify attributes of a destination if name and ip match the name and ip of an exisiting group
         
@@ -59,7 +62,9 @@ class MDT:
             :param protocol: Protocol for the transmission
             :type protocol: str
             :param tls: Whether or not communication uses tls
-            :type tls: bool, optional
+            :type tls: bool
+            :param tls_hostname: Hostname to use for tls communication. Only valid when tls is true
+            :type tls_hostname: str, optional
             :return: The gNMI Response
             :rtype: dict
         """
@@ -68,6 +73,8 @@ class MDT:
 
         if not tls:
             protocol_dict["no-tls"] = None
+        elif tls_hostname != None:
+            protocol_dict["tls-hostname"] = tls_hostname
 
         request = [
             (
@@ -307,8 +314,3 @@ class MDT:
         request = 'Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven/subscriptions/subscription[subscription-id={}]/subscription/state'.format(subscription)
         response = self._client.get(path=[request], encoding='json_ietf')
         return response["notification"][0]["update"][0]["val"] == "active"
-
-    def temp(self):
-        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven'
-        response = self._client.get(path=[request], encoding='json_ietf')
-        return response
