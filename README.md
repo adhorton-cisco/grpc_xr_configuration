@@ -6,6 +6,8 @@ Find the latest docker image at the [Docker Hub](https://hub.docker.com/r/adhort
 If you discover any problems or need help, create an issue or contact me directly at adhorton@cisco.com
 
 ## Installation
+Skip the first three steps by using a prepackaged RPM from the RPMS directory (Built for NCS 5500 with IOS-XR 7.4.2 or later)
+
 1. Build Image from Scratch OR Pull from Docker Hub
     
     a) Build from Scratch
@@ -37,9 +39,20 @@ If you discover any problems or need help, create an issue or contact me directl
    ```
 
 5. Create config.yaml File
-    - Create a file named "config.yaml" in an empty directory that follows the conventions layed out in config/sample.yaml. This will be mounted into the running application to tell it information about the different collectors on the network and the desired telemetry configuration. To enter the Linux environment from IOS-XR, use the "bash" command.
+    - Create a file named "config.yaml" in an empty directory that follows the conventions described in config/sample.yaml. This will be mounted into the running application to tell it information about the different collectors on the network and the desired telemetry configuration. To enter the Linux environment from IOS-XR, use the "bash" command.
 
-6. Install RPM Package to appmgr
+6. Set Up TLS for encrypted configuration management
+    - If using TLS to encrypt configuration gNMI requests from xr-collector-health-monitor, ensure that the router's gRPC settings do not contain "no-tls"
+    ```sh
+    show running-config grpc
+    ```
+    - Copy /misc/config/grpc/ems.pem into the same directory as your config.yaml file
+
+7. Set Up TLS for encrypted telemetry data
+    - Ensure that your collector's instance of telegraf/pipeline has a certificate signed by the CA in /misc/config/grpc/dialout/dialout.pem and is configured to collect TLS-encrypted data
+    - A great tutorial on this process using Self-Signed Certificates can be found on [here](https://xrdocs.io/telemetry/tutorials/2017-05-08-pipeline-with-grpc/#grpc-dialout-with-tls) on xrdocs.
+
+8. Install RPM Package to appmgr
     - In the IOS-XR CLI, 
     ```sh
     appmgr package install rpm /misc/app_host/<NAME>.rpm
@@ -49,11 +62,11 @@ If you discover any problems or need help, create an issue or contact me directl
     show appmgr packages installed
     ```
 
-7. Activate the Application
+9. Activate the Application
     - Enter the config menu
     - Activate the application
     ```sh
-    appmgr application <NAME> activate type docker source <NAME> docker-run-opts "-itd -v /path/to/config/file:/config:ro --network host"
+    appmgr application <NAME> activate type docker source <NAME> docker-run-opts "-itd -v /path/to/config/directory/on/router:/config:ro --network host"
     ```
     - Commit configuration
     - Application will automatically configure streaming telemetry to the first active collector
