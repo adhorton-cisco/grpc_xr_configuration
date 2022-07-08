@@ -99,8 +99,9 @@ def clean(config):
                 logger.info("Removed Sensor Group: " + sensor_group["sensor-group-id"])
             
             for collector in config["collectors"]:
-                router_config.delete_subscription(collector["subscription"]["subscription-id"])
-                logger.info("Removed Subscription: " + collector["subscription"]["subscription-id"])
+                if router_config.read_subscription(collector["subscription"]["subscription-id"]) != None:
+                    router_config.delete_subscription(collector["subscription"]["subscription-id"])
+                    logger.info("Removed Subscription: " + collector["subscription"]["subscription-id"])
                 router_config.delete_destination_group(collector["destination-group"]["destination-id"])
                 logger.info("Removed Destination Group: " + collector["destination-group"]["destination-id"])
 
@@ -168,6 +169,9 @@ def main(config_path, schema_path):
     except FileNotFoundError as err:
         logger.error('config.yaml could not be found')
         logger.debug('check location of config.yaml and mounting directory')
+        raise err
+    except yaml.YAMLError as err:
+        logger.error('config.yaml is not a valid YAML file')
         raise err
 
     with open(os.path.join(os.path.dirname(__file__), schema_path)) as schema_file:
