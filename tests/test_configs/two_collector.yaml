@@ -1,0 +1,41 @@
+---
+
+router:
+  ip: "127.0.0.1"
+  port: 57777
+  username: "cisco"
+  password: "cisco123"
+  tls: false
+
+sensor-groups:
+  - sensor-group-id: "Sample-Sensor-Group-Name"
+    sensor-paths:
+      - "Cisco-IOS-XR-pfi-im-cmd-oper:interfaces/interface-xr/interface"
+      - "Cisco-IOS-XR-infra-statsd-oper:infra-statistics/interfaces/interface/latest/data-rate"
+  - sensor-group-id: "Sample-Sensor-Group-Name-2"
+    sensor-paths:
+      - Cisco-IOS-XR-nto-misc-oper:memory-summary/nodes/node/summary
+
+collectors:
+  - destination-group:
+      ip: "4.5.6.7"
+      port: 57777
+      destination-id: "First-Collector"
+      encoding: "self-describing-gpb"
+      protocol: "grpc"
+      tls: false
+    subscription:
+      subscription-id: "Subscription-1"
+      interval: 30000
+
+  - destination-group:
+      ip: "7.6.5.4"
+      port: 57777
+      destination-id: "Second-Collector"
+      encoding: "self-describing-gpb"
+      protocol: "grpc"
+      tls: true
+      tls-hostname: "hostname.com"
+    subscription:
+      subscription-id: "Subscription-2"
+      interval: 30000
