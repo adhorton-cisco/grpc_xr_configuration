@@ -6,7 +6,7 @@ Find the latest docker image at the [Docker Hub](https://hub.docker.com/r/adhort
 If you discover any problems or need help, create an issue or contact me directly at adhorton@cisco.com
 
 ## Installation
-Skip the first three steps by using a prepackaged RPM from the RPMS directory (Built for NCS 5500 with IOS-XR 7.4.2 or later)
+Skip the first three steps by using a prepackaged RPM from the RPMS directory (Built for NCS 5500 with IOS-XR 7.5.1 or later)
 
 1. Build Image from Scratch OR Pull from Docker Hub
     
