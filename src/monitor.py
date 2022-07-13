@@ -162,6 +162,8 @@ def check(config):
 def main(config_path, schema_path):
     DELAY = 10
 
+    signal.sigtimedwait([signal.SIGTERM], 1)
+
     try:
         with open(os.path.join(os.path.dirname(__file__), config_path), "r") as config_file:
             config = yaml.load(config_file, Loader=yaml.Loader)
