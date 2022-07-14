@@ -11,7 +11,7 @@ router:
   port: 57777             # Port enabled for grpc communication
   username: "cisco"       # Username of router
   password: "cisco123"    # Password of router
-  tls: true               # Encrypt configuration messages from xr-collector-health-monitor
+  tls: false               # Encrypt configuration messages from xr-collector-health-monitor
                           # Must have grpc configured with tls and /misc/config/grpc/ems.pem copied into mounted config directory
 
 ### SENSOR GROUPS FOR TELEMETRY ###
