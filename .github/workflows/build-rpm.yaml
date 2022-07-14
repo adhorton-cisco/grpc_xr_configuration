@@ -34,6 +34,7 @@ jobs:
       run: |
         cd package
         chmod 777 appmgr_build
+        chmod 777 docker/build_rpm.sh
         sed -i "s/{VERSION}/${{ github.event.inputs.version }}/" build.yaml
         ./appmgr_build -b ./build.yaml
 
