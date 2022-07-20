@@ -311,6 +311,6 @@ class MDT:
             :rtype: bool
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven/subscriptions/subscription[subscription-id={}]/subscription/state'.format(subscription)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven/subscriptions/subscription[subscription-id={}]/subscription'.format(subscription)
         response = self._client.get(path=[request], encoding='json_ietf')
-        return response["notification"][0]["update"][0]["val"] == "active"
+        return response["notification"][0]["update"][0]["val"]["state"] == "active"
