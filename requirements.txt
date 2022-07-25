@@ -1,4 +1,3 @@
 pygnmi
-protobuf
 pyyaml
 cerberus
