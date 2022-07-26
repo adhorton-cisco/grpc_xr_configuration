@@ -65,5 +65,5 @@ jobs:
         git config --global user.name 'Adam Horton'
         git config --global user.email 'adhorton@cisco.com'
         git add RPMS
-        git commit -m "Automated Build"
+        git commit -m "Automated Build ${{ github.event.inputs.version }}"
         git push
