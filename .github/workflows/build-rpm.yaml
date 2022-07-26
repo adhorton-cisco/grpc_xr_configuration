@@ -30,7 +30,7 @@ jobs:
         docker save ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:${{ github.event.inputs.version }} > xr-collector-health-monitor.tar
         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/xr-collector-health-monitor:${{ github.event.inputs.version }}
 
-    - name: Package as RPM
+    - name: Package as RPM - eXR
       run: |
         cd package
         chmod 777 appmgr_build
@@ -38,15 +38,27 @@ jobs:
         sed -i "s/{VERSION}/${{ github.event.inputs.version }}/" build.yaml
         ./appmgr_build -b ./build.yaml
 
-    - name: Upload RPM
+    - name: Upload RPM - eXR
       uses: actions/upload-artifact@v2
       with:
         name: xr-collector-health-monitor-${{ github.event.inputs.version }}-eXR_7.3.1.x86_64.rpm
         path: package/RPMS/x86_64/xr-collector-health-monitor-${{ github.event.inputs.version }}-eXR_7.3.1.x86_64.rpm
 
-    - name: Push RPM
+    - name: Package as RPM - ThinXR
+      run: |
+        sed -i "s/eXR_7.3.1/ThinXR_7.3.15/" build.yaml
+        ./appmgr_build -b ./build.yaml
+
+    - name: Upload RPM - ThinXR
+      uses: actions/upload-artifact@v2
+      with:
+        name: xr-collector-health-monitor-${{ github.event.inputs.version }}-ThinXR_7.3.15.x86_64.rpm
+        path: package/RPMS/x86_64/xr-collector-health-monitor-${{ github.event.inputs.version }}-ThinXR_7.3.15.x86_64.rpm
+
+    - name: Push RPMS
       run: |
         sudo mv package/RPMS/x86_64/xr-collector-health-monitor-${{ github.event.inputs.version }}-eXR_7.3.1.x86_64.rpm RPMS
+        sudo mv package/RPMS/x86_64/xr-collector-health-monitor-${{ github.event.inputs.version }}-ThinXR_7.3.15.x86_64.rpm RPMS
         git config --global user.name 'Adam Horton'
         git config --global user.email 'adhorton@cisco.com'
         git add RPMS
