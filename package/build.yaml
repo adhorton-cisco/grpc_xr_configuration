@@ -5,3 +5,10 @@ packages:
   sources:
     - name: xr-collector-health-monitor
       file: ../xr-collector-health-monitor.tar
+
+- name: "xr-collector-health-monitor"
+  release: "ThinXR_7.3.15"
+  version: {VERSION}
+  sources:
+    - name: xr-collector-health-monitor
+      file: ../xr-collector-health-monitor.tar
