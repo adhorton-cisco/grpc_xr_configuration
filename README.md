@@ -66,7 +66,7 @@ Skip the first three steps by using a prepackaged RPM from the RPMS directory (B
     - Enter the config menu
     - Activate the application
     ```sh
-    appmgr application <NAME> activate type docker source <NAME> docker-run-opts "-itd -v /path/to/config/directory/on/router:/config:ro --network host"
+    appmgr application <NAME> activate type docker source <NAME> docker-run-opts "-v /path/to/config/directory/on/router:/config:ro --network host"
     ```
     - Commit configuration
     - Application will automatically configure streaming telemetry to the first active collector
@@ -98,7 +98,11 @@ Skip the first three steps by using a prepackaged RPM from the RPMS directory (B
 
 ## Useful Links
 
-For additional resources on telemetry, app hosting, or anything else to do with IOS-XR, visit [xrdocs](https://xrdocs.io/)
+For additional resources on telemetry, app hosting, or anything else to do with IOS-XR, visit [xrdocs](https://xrdocs.io/)  
+
+I have written two articles about this repository, and you can find them here:
+- [Blog](https://xrdocs.io/application-hosting/blogs/2022-07-26-xr-collector-health-monitor-an-app-hosting-use-case/)
+- [Tutorial](https://xrdocs.io/application-hosting/tutorials/2022-07-15-app-hosting-with-xr-appmgr-and-docker-7-5-1/)
 
 ## Contributors/Contact
 * Adam Horton - adhorton@cisco.com
