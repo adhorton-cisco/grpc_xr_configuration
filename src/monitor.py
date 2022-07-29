@@ -74,7 +74,7 @@ def setup(config):
         logger.debug('Check grpc configuration on host or username/password in config.yaml')
         raise err
     except Exception as err:
-        logger.error('Failed to find ems.pem')
+        logger.error('Possibly failed to find ems.pem')
         logger.debug('Check to see if ems.pem is in config directory mounted in container')
         raise err
 
@@ -110,7 +110,7 @@ def clean(config):
         logger.debug('Check grpc configuration on host or username/password in config.yaml')
         raise err
     except Exception as err:
-        logger.error('Failed to find ems.pem')
+        logger.error('Possibly failed to find ems.pem')
         logger.debug('Check to see if ems.pem is in config directory mounted in container')
         raise err
 
@@ -152,7 +152,7 @@ def check(config):
         logger.debug('Check grpc configuration on host or username/password in config.yaml')
         raise err
     except Exception as err:
-        logger.error('Failed to find ems.pem')
+        logger.error('Possibly failed to find ems.pem')
         logger.debug('Check to see if ems.pem is in config directory mounted in container')
         raise err
         

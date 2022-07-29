@@ -114,7 +114,7 @@ class MDT:
             :rtype: dict
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups/destination-group[destination-id={}]'.format(destination_group)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups/destination-group[destination-id={}]'.format('"' + destination_group + '"')
         return self._client.get(path=[request], encoding='json_ietf')
 
     def read_all_destination_groups(self):
@@ -125,7 +125,8 @@ class MDT:
         """
 
         request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups'
-        self._client.get(path=[request], encoding='json_ietf')
+        response = self._client.get(path=[request], encoding='json_ietf')
+        return response
     
     def delete_destination_group(self, destination_group):
         """ Deletes the configuration of a specific destination group
@@ -136,7 +137,7 @@ class MDT:
             :rtype: dict
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups/destination-group[destination-id={}]'.format(destination_group)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/destination-groups/destination-group[destination-id={}]'.format('"' + destination_group + '"')
         response = self._client.set(delete=[request], encoding='json_ietf')
         return response
 
@@ -188,7 +189,7 @@ class MDT:
             :rtype: dict
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/sensor-groups/sensor-group[sensor-group-identifier={}]'.format(sensor_group)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/sensor-groups/sensor-group[sensor-group-identifier={}]'.format('"' + sensor_group + '"')
         return self._client.get(path=[request], encoding='json_ietf')
 
     def read_all_sensor_groups(self):
@@ -210,7 +211,7 @@ class MDT:
             :rtype: dict
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/sensor-groups/sensor-group[sensor-group-identifier={}]'.format(sensor_group)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/sensor-groups/sensor-group[sensor-group-identifier={}]'.format('"' + sensor_group + '"')
         response = self._client.set(delete=[request], encoding='json_ietf')
         return response
 
@@ -274,7 +275,7 @@ class MDT:
             :rtype: dict
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/subscriptions/subscription[subscription-identifier={}]'.format(subscription)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/subscriptions/subscription[subscription-identifier={}]'.format('"' + subscription + '"')
         response = self._client.get(path=[request], encoding='json_ietf')
         return response
 
@@ -298,7 +299,7 @@ class MDT:
             :rtype: dict
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/subscriptions/subscription[subscription-identifier={}]'.format(subscription)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-cfg:telemetry-model-driven/subscriptions/subscription[subscription-identifier={}]'.format('"' + subscription + '"')
         response = self._client.set(delete=[request], encoding='json_ietf')
         return response
 
@@ -311,6 +312,6 @@ class MDT:
             :rtype: bool
         """
 
-        request = 'Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven/subscriptions/subscription[subscription-id={}]/subscription'.format(subscription)
+        request = 'Cisco-IOS-XR-telemetry-model-driven-oper:telemetry-model-driven/subscriptions/subscription[subscription-id={}]/subscription'.format('"' + subscription + '"')
         response = self._client.get(path=[request], encoding='json_ietf')
         return response["notification"][0]["update"][0]["val"]["state"] == "active"
